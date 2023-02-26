@@ -2,13 +2,18 @@ class Produto {
     constructor() {
         this.id = 1;
         this.arrayProdutos = [];
+        this.editId = null;
     }
 
     salvar() {
         let produto = this.lerDados();
 
         if (this.validaCampos(produto)) {
-            this.adicionar(produto);
+            if(this.editId == null) {
+                this.adicionar(produto);
+            } else {
+                this.adicionar.atualizar(this.editId, produto);
+            }
         }
         this.listaTabela();
         this.cancelar();
@@ -51,6 +56,36 @@ class Produto {
         this.id++;
     }
 
+    atualizar(id, produto) {
+        for (let i = 0; i < this.arrayProdutos.length; i++) {
+            if(this.arrayProdutos[i].id == id) {
+                this.arrayProdutos[i].nomeProduto = produto.nomeProduto;
+                this.arrayProdutos[i].valor = produto.valor;            
+            }
+        }
+    }
+
+    deletar(id) {
+        if (confirm(`Deseja deletar o Item ${id} ?`)) {
+            let tbody = document.getElementById('tbody');
+
+            for (let i = 0; i < this.arrayProdutos.length; i++) {
+                if (this.arrayProdutos[i].id == id) {
+                    this.arrayProdutos.splice(i, 1);
+                    tbody.deleteRow(i);
+                }
+            }
+        }
+    }
+
+    prepararEdit(dados) {
+        this.editId = dados.id;
+
+        document.getElementById('produto').value = dados.nomeProduto;
+        document.getElementById('valor').value = dados.valor;
+        document.getElementById('btn1').innerText = 'Atualizar';
+    }
+
     listaTabela() {
         let tbody = document.getElementById('tbody');
         tbody.innerText = ''
@@ -72,18 +107,17 @@ class Produto {
 
             let imgEdit = document.createElement('img');
             imgEdit.src = 'icons/edit.svg';
+            imgEdit.setAttribute("onclick", "produto.prepararEdit(" + JSON.stringify(this.arrayProdutos[i]) + ")");
 
             let imgDelet = document.createElement('img');
             imgDelet.src = 'icons/delete.svg';
+            imgDelet.setAttribute("onclick", "produto.deletar(" + this.arrayProdutos[i].id + ")");
+
 
             td_acoes.appendChild(imgDelet);
             td_acoes.appendChild(imgEdit);
         }
     }
-
-
-
-
 }
 
 var produto = new Produto();
